@@ -5,32 +5,93 @@ const Posts = require('../posts/postDb')
 
 const router = express.Router();
 
-router.post('/', (req, res) => {
+router.post('/api/users', validateUser, (req, res) => {
   // do your magic!
+  Users.insert(req.body)
+  .then(data => {
+    res.status(200).json(data)
+  })
+  .catch(error => {
+    res.status(400).json({
+      message: "unable to add"
+    })
+  })
 });
 
-router.post('/:id/posts', (req, res) => {
+router.post('/api/users/:id/posts',[validatePost, validateUserId], (req, res) => {
   // do your magic!
+  const newPost = {
+    user_id: req.params.id,
+    text: req.body.text,
+  }
+  Posts.insert(newPost)
+  .then(data => {
+    res.status(200).json(data)
+  })
+  .catch(error => {
+    res.status(500).json({
+      message: `sorry, ${error}`
+    })
+  })
 });
 
-router.get('/', (req, res) => {
+router.get('/api/users', (req, res) => {
   // do your magic!
+  Users.get()
+  .then(data => {
+    res.status(200).json(data)
+  })
+  .catch(error => {
+    res.status(500).json({
+      message: `error ${error}`
+    })
+  })
 });
 
-router.get('/:id', (req, res) => {
+router.get('/api/users/:id', validateUserId, (req, res) => {
   // do your magic!
+  res.status(200).json(req.user)
 });
 
-router.get('/:id/posts', (req, res) => {
+router.get('api/users/:id/posts', validateUserId, (req, res) => {
   // do your magic!
+  Users.getUserPosts(req.params.id)
+  .then(data => {
+    res.status(200).json(data)
+  })
+  .catch(err => {
+    res.status(500).json({
+      message: `error ${err}`
+    })
+  })
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/api/users/:id', validateUserId, (req, res) => {
   // do your magic!
+  Users.remove(req.params.id)
+  .then(data => {
+    res.status(200).json({
+      message: 'deleted!'
+    })
+  })
+  .catch(err => {
+    res.status(500).json({
+      message: `error, ${err}`
+    })
+  })
 });
 
-router.put('/:id', (req, res) => {
+router.put('/api/users/:id', [validateUserId, validateUser], (req, res) => {
   // do your magic!
+  Users.update(req.params.id, req.body)
+  .then(data => {
+    res.status(200).json(data)
+  })
+  .catch(err => {
+    res.status(500).json({
+      message: `error, ${err}`
+    })
+  })
 });
 
 //custom middleware
